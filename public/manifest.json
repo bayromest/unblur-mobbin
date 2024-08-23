@@ -1,11 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "Free Mobbin",
+  "name": "Unblur Mobbin",
   "version": "1.0",
-  "description": "Free Mobbin",
+  "description": "Unblur Mobbin",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["https://mobbin.com/*"],
-
+  "content_scripts": [
+    {
+      "matches": ["https://mobbin.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "action": {
     "default_popup": "index.html"
   }
