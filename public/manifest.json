@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Free Mobbin",
+  "version": "1.0",
+  "description": "Free Mobbin",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["https://mobbin.com/*"],
+
+  "action": {
+    "default_popup": "index.html"
+  }
+}
