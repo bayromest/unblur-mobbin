@@ -4,6 +4,7 @@ function App() {
       active: true,
       currentWindow: true,
     });
+
     chrome.scripting.executeScript({
       target: { tabId: tab.id! },
       func: () => {
@@ -17,16 +18,16 @@ function App() {
         }
 
         // Modify each relevant element
-        const elements = document.querySelectorAll(".group.relative");
-        elements.forEach((element) => {
+        const screensElements = document.querySelectorAll(".group.relative");
+        screensElements.forEach((element) => {
           // Cast the element to HTMLElement to access style property
           const innerDiv = element.querySelector(
             ".relative.overflow-hidden.bg-bg-secondary"
           ) as HTMLElement;
           const imgElement = element.querySelector("img");
 
-          if (innerDiv && imgElement) {
-            // Remove unnecessary classes from the div
+          if (innerDiv) {
+            // Remove specific classes from the div
             innerDiv.classList.remove(
               "bg-bg-secondary",
               "after:absolute",
@@ -35,15 +36,7 @@ function App() {
               "after:shadow-image-inset",
               "blur-0",
               "after:bg-neutral-white/40",
-              "after:backdrop-blur-[10px]",
-              "group-focus-visible:ring-4",
-              "group-focus-visible:ring-blue-200/50",
-              "outline-0",
-              "outline-transparent",
-              "outline",
-              "outline-offset-2",
-              "transition-[outline]",
-              "ease-out"
+              "after:backdrop-blur-[10px]"
             );
 
             // Remove inline styles related to blur and backdrop filter
@@ -51,7 +44,9 @@ function App() {
             innerDiv.style.filter = "none";
 
             console.log("Modified inner div styles");
+          }
 
+          if (imgElement) {
             // Update the img src to remove query parameters after ".png"
             try {
               const url = new URL(imgElement.src);
@@ -65,6 +60,57 @@ function App() {
             }
           }
         });
+
+        // Handle elements with a specific width style
+        const flowElements = document.querySelectorAll(
+          "div[data-radix-aspect-ratio-wrapper]"
+        );
+
+        flowElements.forEach((element) => {
+          if (element instanceof HTMLElement) {
+            // Target the <div> inside the <a> element
+            const innerDiv = element.querySelector(
+              "a > div.grow"
+            ) as HTMLElement;
+            const imgElement = element.querySelector(
+              "a > div.grow > img"
+            ) as HTMLImageElement;
+
+            if (innerDiv) {
+              // Remove specific classes from the div
+              innerDiv.classList.remove(
+                "bg-bg-secondary",
+                "after:absolute",
+                "after:inset-0",
+                "after:rounded-[--border-radius]",
+                "after:shadow-image-inset",
+                "blur-0",
+                "after:bg-neutral-white/40",
+                "after:backdrop-blur-[10px]"
+              );
+
+              // Remove inline styles related to blur and backdrop filter
+              innerDiv.style.backdropFilter = "none";
+              innerDiv.style.filter = "none";
+
+              console.log("Modified inner div styles");
+            }
+
+            if (imgElement) {
+              // Update the img src to remove query parameters after ".png"
+              try {
+                const url = new URL(imgElement.src);
+                if (url.pathname.endsWith(".png")) {
+                  const updatedSrc = `${url.origin}${url.pathname}`;
+                  imgElement.src = updatedSrc;
+                  console.log("Updated image src to:", updatedSrc);
+                }
+              } catch (error) {
+                console.error("Failed to update image URL:", error);
+              }
+            }
+          }
+        });
       },
     });
   };
@@ -73,7 +119,7 @@ function App() {
     <div className="flex flex-col w-full">
       <button
         onClick={handleClick}
-        className="bg-blue-600 text-white p-4 rounded-md W-full h-full"
+        className="bg-blue-600 text-white p-4 rounded-md w-full h-full"
       >
         Free mobbin :D
       </button>
