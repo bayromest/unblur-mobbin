@@ -1,6 +1,4 @@
 function handleModifications() {
-  console.log("Handling modifications");
-
   // Remove button and aside elements
   const button = document.querySelector(
     'button[data-cre-user-type="free_user"]'
@@ -125,7 +123,7 @@ function handleModifications() {
         console.log("Updated video poster to:", updatedPosterUrl);
       }
 
-      const currentSrc = videoElement.getAttribute("src");
+      const currentSrc = videoElement.getAttribute("poster");
       const updatedSrc = updateVideoUrl(currentSrc);
       if (updatedSrc) {
         videoElement.setAttribute("src", updatedSrc);
@@ -162,32 +160,23 @@ function handleModifications() {
       // Create a URL object from the provided URL
       const url = new URL(videoUrl);
 
-      // Replace 'image' with 'video' in the pathname
-      const newPathname = url.pathname.replace("/image/", "/video/");
+      // Replace '/image/' with '/video/' in the pathname
+      let newPathname = url.pathname.replace("/image/", "/video/");
+
+      // Remove everything after '.mp4'
+      const mp4Index = newPathname.indexOf(".mp4");
+      if (mp4Index !== -1) {
+        newPathname = newPathname.substring(0, mp4Index + 4); // Include ".mp4"
+      }
+
       url.pathname = newPathname;
 
-      // Remove existing query parameters
-      url.search = "";
+      // Manually construct the new query string
+      const newQueryString =
+        "f=mp4-h264&w=1920&hp=1920&sh=100&mute=true&p=mhq&q=100&gop=300&sd=false&rf=6&bf=7&qz=-1&if=0&bo=-1&a=%2Fvideo.mp4";
 
-      // Append the new query parameters
-      const newParams = new URLSearchParams({
-        f: "mp4-h264",
-        w: "1920",
-        hp: "1920",
-        sh: "100",
-        mute: "true",
-        p: "mhq",
-        q: "100",
-        gop: "300",
-        sd: "false",
-        rf: "6",
-        bf: "7",
-        qz: "-1",
-        if: "0",
-        bo: "-1",
-        a: "%2Fvideo.mp4",
-      });
-      url.search = newParams.toString();
+      // Set the new query string to the URL
+      url.search = newQueryString;
 
       console.log("Updated video URL:", url.toString());
       return url.toString();
