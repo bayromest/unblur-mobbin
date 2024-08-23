@@ -97,7 +97,6 @@ function handleModifications() {
       }
     }
   });
-
   const videoWrappers = document.querySelectorAll(
     "div[data-radix-aspect-ratio-wrapper]"
   );
@@ -144,45 +143,60 @@ function handleModifications() {
       console.log("Removed play icon overlay");
     }
   });
-}
 
-// Function to update the poster URL
-function updatePosterUrl(posterUrl) {
-  try {
-    const url = new URL(posterUrl);
-    url.searchParams.set("w", "1920");
-    return url.toString();
-  } catch (error) {
-    console.error("Failed to update poster URL:", error);
+  // Function to update the poster URL
+  function updatePosterUrl(posterUrl) {
+    try {
+      const url = new URL(posterUrl);
+      url.searchParams.set("w", "1920");
+      return url.toString();
+    } catch (error) {
+      console.error("Failed to update poster URL:", error);
+    }
+    return posterUrl;
   }
-  return posterUrl;
-}
 
-// Function to update the video URL
-function updateVideoUrl(videoUrl) {
-  try {
-    const url = new URL(videoUrl);
-    url.searchParams.set("w", "1920");
-    url.searchParams.set("hp", "1920");
-    url.searchParams.set("sh", "100");
-    url.searchParams.set("mute", "true");
-    url.searchParams.set("p", "mhq");
-    url.searchParams.set("q", "73");
-    url.searchParams.set("gop", "300");
-    url.searchParams.set("sd", "false");
-    url.searchParams.set("rf", "6");
-    url.searchParams.set("bf", "7");
-    url.searchParams.set("qz", "-1");
-    url.searchParams.set("if", "0");
-    url.searchParams.set("bo", "-1");
-    url.searchParams.set("a", "%2Fvideo.mp4");
-    return url.toString();
-  } catch (error) {
-    console.error("Failed to update video URL:", error);
+  // Function to update the video URL
+  function updateVideoUrl(videoUrl) {
+    try {
+      // Create a URL object from the provided URL
+      const url = new URL(videoUrl);
+
+      // Replace 'image' with 'video' in the pathname
+      const newPathname = url.pathname.replace("/image/", "/video/");
+      url.pathname = newPathname;
+
+      // Remove existing query parameters
+      url.search = "";
+
+      // Append the new query parameters
+      const newParams = new URLSearchParams({
+        f: "mp4-h264",
+        w: "1920",
+        hp: "1920",
+        sh: "100",
+        mute: "true",
+        p: "mhq",
+        q: "100",
+        gop: "300",
+        sd: "false",
+        rf: "6",
+        bf: "7",
+        qz: "-1",
+        if: "0",
+        bo: "-1",
+        a: "%2Fvideo.mp4",
+      });
+      url.search = newParams.toString();
+
+      console.log("Updated video URL:", url.toString());
+      return url.toString();
+    } catch (error) {
+      console.error("Failed to update video URL:", error);
+      return videoUrl; // Return the original URL in case of an error
+    }
   }
-  return videoUrl;
 }
-
 // Add event listeners for scroll and DOMContentLoaded
 window.addEventListener("scroll", handleModifications);
 document.addEventListener("DOMContentLoaded", handleModifications);
