@@ -1,50 +1,71 @@
-# React + TypeScript + Vite
+# Mobbin Scene Unblur Extension
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This browser extension helps you unlock and view the blurred pro scenes on Mobbin.com. It modifies the content of the Mobbin site to reveal detailed visuals that are normally hidden behind a blur.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Unblur Pro Scenes**: Automatically unblurs pro scenes on Mobbin.com for enhanced viewing.
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+1. **Clone the Repository**
 
-- Configure the top-level `parserOptions` property like this:
+   \`\`\`sh
+   gh repo clone bayromest/unblur-mobbin
+   cd your-repo-name
+   \`\`\`
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+2. **Install Dependencies**
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+   This project uses Vite for bundling. Install dependencies with:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+   \`\`\`sh
+   npm install
+   \`\`\`
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+   or
+
+   \`\`\`sh
+   yarn install
+   \`\`\`
+
+3. **Build the Extension**
+
+   To build the extension for your browser, run:
+
+   \`\`\`sh
+   npm run build
+   \`\`\`
+
+   or
+
+   \`\`\`sh
+   yarn build
+   \`\`\`
+
+4. **Load the Extension**
+
+   - Open your browser and navigate to the Extensions page (e.g., \`chrome://extensions/\` for Chrome).
+   - Enable "Developer mode".
+   - Click "Load unpacked" and select the \`dist\` directory created by the build process.
+
+## Usage
+
+Once installed, the extension will automatically detect and unblur pro scenes on Mobbin.com. Simply navigate to the Mobbin site, and the extension will handle the rest.
+
+## Configuration
+
+To adjust the settings of the extension:
+
+1. Open the extension popup or options page (if available).
+2. Customize settings such as the level of unblurring or visual enhancements.
+
+## Contributing
+
+If you’d like to contribute to this project, please follow these steps:
+
+1. Fork the repository.
+2. Create a feature branch (\`git checkout -b feature/YourFeature\`).
+3. Commit your changes (\`git commit -am 'Add new feature'\`).
+4. Push to the branch (\`git push origin feature/YourFeature\`).
+5. Create a Pull Request.
