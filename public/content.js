@@ -1,9 +1,21 @@
 function handleModifications() {
+  // Remove promotional banners
+  removePromoBanners();
+
   // Unblur screen cells (grid view)
   unblurScreenCells();
 
   // Unblur flow cells (flow view)
   unblurFlowCells();
+}
+
+function removePromoBanners() {
+  // Remove sticky "Get Pro" promotional banners
+  const promoBanners = document.querySelectorAll("aside.sticky.z-10.my-32");
+  promoBanners.forEach((banner) => {
+    banner.remove();
+    console.log("Removed promo banner");
+  });
 }
 
 function unblurScreenCells() {
