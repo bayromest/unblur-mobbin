@@ -1,196 +1,150 @@
 function handleModifications() {
-  // Remove button and aside elements
-  const button = document.querySelector(
-    'button[data-cre-user-type="free_user"]'
+  // Unblur screen cells (grid view)
+  unblurScreenCells();
+
+  // Unblur flow cells (flow view)
+  unblurFlowCells();
+}
+
+function unblurScreenCells() {
+  // Find blurred screen containers - they have pointer-events-none and the blur overlay
+  const blurredContainers = document.querySelectorAll(
+    ".mobile-screen-border-radius-container.pointer-events-none"
   );
-  if (button) {
-    button.remove();
-    console.log("Button element removed");
-  } else {
-    console.log("Button element not found");
-  }
 
-  const asideElement = document.querySelector("aside.sticky.z-10.my-32");
-  if (asideElement) {
-    asideElement.remove();
-    console.log("Aside element removed");
-  } else {
-    console.log("Aside element not found");
-  }
+  blurredContainers.forEach((container) => {
+    // Remove pointer-events-none to make it interactive
+    container.classList.remove("pointer-events-none");
 
-  // Modify each relevant element
-  const screensElements = document.querySelectorAll(".group.relative");
-  screensElements.forEach((element) => {
-    const innerDiv = element.querySelector(
-      ".relative.overflow-hidden.bg-bg-secondary"
+    // Find and remove the blur overlay div
+    const blurOverlay = container.querySelector(
+      'div[class*="backdrop-blur"]'
     );
-    const imgElement = element.querySelector("img");
+    if (blurOverlay) {
+      blurOverlay.remove();
+      console.log("Removed blur overlay");
+    }
 
-    if (innerDiv) {
-      innerDiv.classList.remove(
-        "bg-bg-secondary",
-        "after:absolute",
-        "after:inset-0",
-        "after:rounded-[--border-radius]",
-        "after:shadow-image-inset",
-        "blur-0",
-        "after:bg-neutral-white/40",
-        "after:backdrop-blur-[10px]"
+    // Update image to high quality
+    const img = container.querySelector("img");
+    if (img) {
+      img.src = upgradeImageUrl(img.src);
+      console.log("Upgraded image quality");
+    }
+  });
+
+  // Also handle the wrapper div structure for screens
+  const screenWrappers = document.querySelectorAll(".flex.flex-col.gap-y-16");
+  screenWrappers.forEach((wrapper) => {
+    const blurredInner = wrapper.querySelector(
+      ".pointer-events-none.mobile-screen-border-radius-container"
+    );
+    if (blurredInner) {
+      blurredInner.classList.remove("pointer-events-none");
+
+      const blurOverlay = blurredInner.querySelector(
+        'div[class*="backdrop-blur"]'
       );
-      innerDiv.style.backdropFilter = "none";
-      innerDiv.style.filter = "none";
-      console.log("Modified inner div styles");
-    }
+      if (blurOverlay) {
+        blurOverlay.remove();
+      }
 
-    if (imgElement) {
-      try {
-        const url = new URL(imgElement.src);
-        if (url.pathname.endsWith(".png")) {
-          const updatedSrc = `${url.origin}${url.pathname}`;
-          imgElement.src = updatedSrc;
-          console.log("Updated image src to:", updatedSrc);
-        }
-      } catch (error) {
-        console.log("Failed to update image URL:", error);
+      const img = blurredInner.querySelector("img");
+      if (img) {
+        img.src = upgradeImageUrl(img.src);
       }
     }
   });
+}
 
-  const flowElements = document.querySelectorAll(
-    "div[data-radix-aspect-ratio-wrapper]"
+function unblurFlowCells() {
+  // Find flow cell screens with pointer-events-none (blurred ones)
+  const blurredFlows = document.querySelectorAll(
+    'a[data-sentry-component="FlowCellScreen"].pointer-events-none'
   );
 
-  flowElements.forEach((element) => {
-    if (element instanceof HTMLElement) {
-      const innerDiv = element.querySelector("a > div.grow");
-      const imgElement = element.querySelector("a > div.grow > img");
+  blurredFlows.forEach((link) => {
+    // Remove pointer-events-none
+    link.classList.remove("pointer-events-none");
 
-      if (innerDiv) {
-        innerDiv.classList.remove(
-          "bg-bg-secondary",
-          "after:absolute",
-          "after:inset-0",
-          "after:rounded-[--border-radius]",
-          "after:shadow-image-inset",
-          "blur-0",
-          "after:bg-neutral-white/40",
-          "after:backdrop-blur-[10px]"
-        );
-        innerDiv.style.backdropFilter = "none";
-        innerDiv.style.filter = "none";
-        console.log("Modified inner div styles");
-      }
+    // Fix tabindex
+    link.setAttribute("tabindex", "0");
 
-      if (imgElement) {
-        try {
-          const url = new URL(imgElement.src);
-          if (url.pathname.endsWith(".png")) {
-            const updatedSrc = `${url.origin}${url.pathname}`;
-            imgElement.src = updatedSrc;
-            console.log("Updated image src to:", updatedSrc);
-          }
-        } catch (error) {
-          console.log("Failed to update image URL:", error);
-        }
-      }
-    }
-  });
-  const videoWrappers = document.querySelectorAll(
-    "div[data-radix-aspect-ratio-wrapper]"
-  );
-
-  videoWrappers.forEach((wrapper) => {
-    const innerDiv = wrapper.querySelector("div.relative.grow");
-    const videoElement = wrapper.querySelector("video");
-
-    if (innerDiv) {
-      // Remove any backdrop blur styles
-      innerDiv.style.backdropFilter = "none";
-      innerDiv.style.filter = "none";
-      innerDiv.classList.remove("after:backdrop-blur");
-      console.log("Removed backdrop blur styles");
+    // Find and remove the blur overlay
+    const blurOverlay = link.querySelector('div[class*="backdrop-blur"]');
+    if (blurOverlay) {
+      blurOverlay.remove();
+      console.log("Removed flow blur overlay");
     }
 
-    if (videoElement) {
-      // Remove pointer-events-none to make the video clickable
-      videoElement.classList.remove("pointer-events-none");
-
-      // Update the poster and src attributes
-      const posterUrl = videoElement.getAttribute("poster");
-      const updatedPosterUrl = updatePosterUrl(posterUrl);
-      if (updatedPosterUrl) {
-        videoElement.setAttribute("poster", updatedPosterUrl);
-        console.log("Updated video poster to:", updatedPosterUrl);
-      }
-
-      const currentSrc = videoElement.getAttribute("poster");
-      const updatedSrc = updateVideoUrl(currentSrc);
-      if (updatedSrc) {
-        videoElement.setAttribute("src", updatedSrc);
-        console.log("Updated video src to:", updatedSrc);
-      }
-
-      // Ensure playsinline is correctly set
-      videoElement.setAttribute("playsinline", "");
-    }
-
-    // Optionally remove overlays or play icons
-    const playIcon = wrapper.querySelector("div.absolute");
-    if (playIcon) {
-      playIcon.style.display = "none"; // Hide the play icon
-      console.log("Removed play icon overlay");
+    // Update image to high quality
+    const img = link.querySelector("img");
+    if (img) {
+      img.src = upgradeImageUrl(img.src);
+      console.log("Upgraded flow image quality");
     }
   });
 
-  // Function to update the poster URL
-  function updatePosterUrl(posterUrl) {
-    try {
-      const url = new URL(posterUrl);
+  // Also catch any remaining blur overlays in flow containers
+  const flowContainers = document.querySelectorAll('.w-\\[--screen-width\\]');
+  flowContainers.forEach((container) => {
+    const blurOverlay = container.querySelector(
+      'div.absolute[class*="backdrop-blur"]'
+    );
+    if (blurOverlay) {
+      blurOverlay.remove();
+    }
+
+    const link = container.querySelector("a");
+    if (link && link.classList.contains("pointer-events-none")) {
+      link.classList.remove("pointer-events-none");
+      link.setAttribute("tabindex", "0");
+    }
+
+    const img = container.querySelector("img");
+    if (img && img.src.includes("w=15")) {
+      img.src = upgradeImageUrl(img.src);
+    }
+  });
+}
+
+function upgradeImageUrl(src) {
+  try {
+    const url = new URL(src);
+
+    // Upgrade width from 15 to 1920
+    if (url.searchParams.get("w") === "15") {
       url.searchParams.set("w", "1920");
-      return url.toString();
-    } catch (error) {
-      console.error("Failed to update poster URL:", error);
     }
-    return posterUrl;
-  }
 
-  // Function to update the video URL
-  function updateVideoUrl(videoUrl) {
-    try {
-      // Create a URL object from the provided URL
-      const url = new URL(videoUrl);
-
-      // Replace '/image/' with '/video/' in the pathname
-      let newPathname = url.pathname.replace("/image/", "/video/");
-
-      // Remove everything after '.mp4'
-      const mp4Index = newPathname.indexOf(".mp4");
-      if (mp4Index !== -1) {
-        newPathname = newPathname.substring(0, mp4Index + 4); // Include ".mp4"
-      }
-
-      url.pathname = newPathname;
-
-      // Manually construct the new query string
-      const newQueryString =
-        "f=mp4-h264&w=1920&hp=1920&sh=100&mute=true&p=mhq&q=100&gop=300&sd=false&rf=6&bf=7&qz=-1&if=0&bo=-1&a=%2Fvideo.mp4";
-
-      // Set the new query string to the URL
-      url.search = newQueryString;
-
-      console.log("Updated video URL:", url.toString());
-      return url.toString();
-    } catch (error) {
-      console.error("Failed to update video URL:", error);
-      return videoUrl; // Return the original URL in case of an error
+    // Fix watermark path - remove the /15 suffix if present
+    const imageParam = url.searchParams.get("image");
+    if (imageParam && imageParam.endsWith("/15")) {
+      url.searchParams.set("image", imageParam.slice(0, -3));
     }
+
+    return url.toString();
+  } catch (error) {
+    console.error("Failed to upgrade image URL:", error);
+    return src;
   }
 }
 // Add event listeners for scroll and DOMContentLoaded
 window.addEventListener("scroll", handleModifications);
 document.addEventListener("DOMContentLoaded", handleModifications);
 
+// Also run on mutation to catch dynamically loaded content
+const observer = new MutationObserver(() => {
+  handleModifications();
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+});
+
 // Optionally, remove the event listener when the page is unloaded
 window.addEventListener("unload", () => {
   window.removeEventListener("scroll", handleModifications);
+  observer.disconnect();
 });

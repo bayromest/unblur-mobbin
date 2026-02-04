@@ -21,15 +21,31 @@ The content script runs independently of the popup. There is **no message passin
 
 ### Content Script DOM Manipulation
 
-The unblur logic in [public/content.js](../public/content.js) targets specific Mobbin CSS classes and elements:
-- Removes blur via class removal: `after:backdrop-blur-[10px]`, `after:bg-neutral-white/40`
-- Strips query params from image URLs to get full-resolution versions
-- Converts image poster URLs to video URLs by replacing `/image/` → `/video/`
+The unblur logic in [public/content.js](../public/content.js) targets specific Mobbin elements:
 
-Event-driven execution pattern:
+**Blurred elements have these markers:**
+- `pointer-events-none` class on container/link
+- Low-quality image URL with `w=15` parameter
+- Blur overlay div: `div[class*="backdrop-blur"]` with `bg-[hsl(var(--neutral-0)/40%)] backdrop-blur-[10px]`
+- Watermark path ending in `/15` (e.g., `image=/mobbin.com/.../uuid/15`)
+
+**Unblur transformation:**
+1. Remove `pointer-events-none` class
+2. Remove blur overlay div entirely
+3. Upgrade image URL: `w=15` → `w=1920`
+4. Fix watermark: remove `/15` suffix from image param
+
+**Key selectors:**
+- Screen cells: `.mobile-screen-border-radius-container.pointer-events-none`
+- Flow cells: `a[data-sentry-component="FlowCellScreen"].pointer-events-none`
+- Flow containers: `.w-\[--screen-width\]`
+
+Event-driven execution with MutationObserver for dynamic content:
 ```javascript
 window.addEventListener("scroll", handleModifications);
 document.addEventListener("DOMContentLoaded", handleModifications);
+const observer = new MutationObserver(() => handleModifications());
+observer.observe(document.body, { childList: true, subtree: true });
 ```
 
 ### Build Output Structure
