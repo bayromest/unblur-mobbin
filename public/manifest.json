@@ -1,14 +1,23 @@
 {
   "manifest_version": 3,
   "name": "Unblur Mobbin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Unblur Mobbin",
-  "permissions": ["activeTab", "scripting"],
-  "host_permissions": ["https://mobbin.com/*"],
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://mobbin.com/*"
+  ],
   "content_scripts": [
     {
-      "matches": ["https://mobbin.com/*"],
-      "js": ["content.js"],
+      "matches": [
+        "https://mobbin.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_end"
     }
   ],

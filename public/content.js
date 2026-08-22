@@ -1,60 +1,57 @@
-// Mobbin's free-tier lock (as of Aug 2026) is a full-card veil stacked over a
-// sharp image:
-//   <div class="pointer-events-none relative mobile-screen-border-radius ... overflow-hidden">
-//     <img src="...?enc=1..." />  <- sharp, watermarked, 720px
-//     <div class="absolute inset-0 bg-[hsl(var(--neutral-0)/40%)] backdrop-blur-[10px]" />
-//   </div>
-// Image URLs are AES-encrypted Bytescale links (?enc=1...), so no client-side
-// resolution upgrade is possible — the old w=15 -> w=1920 rewrite is dead.
-// This script only lifts the veil and restores clickability.
+// Mobbin free-tier lock killer — pure CSS injection (no DOM mutation).
+//
+// The lock is a full-card veil stacked over a sharp image:
+//   <div class="absolute inset-0 bg-[hsl(var(--neutral-0)/40%)] backdrop-blur-[10px]" />
+// inside a pointer-events-none card container. Some card types use other
+// blur utilities (backdrop-blur-md, after:backdrop-blur-*) — the selectors
+// below match them all.
+//
+// Earlier versions removed veil nodes via MutationObserver. That lost races
+// against React's virtualized grid: cards re-rendered on scroll got their
+// veil back, and removing React-managed nodes could break reconciliation
+// for cards rendered later, leaving random cards blurred. CSS overrides
+// can't lose that race — they apply to every element React ever renders,
+// without touching its tree. Image URLs are AES-encrypted Bytescale links
+// (?enc=1...), so no resolution upgrade is possible; this only lifts the
+// veil to reveal the sharp 720px watermarked image the page already loads.
 
-const BLUR_OVERLAY_SELECTOR = ".backdrop-blur-\\[10px\\]";
+const STYLE_ID = "unblur-mobbin-style";
 
-function handleModifications() {
-  // Remove promotional banners
-  removePromoBanners();
+const CSS = `
+  /* Lock veil: full-card overlay (inset-0 + any backdrop-blur-* utility).
+     Transparent + unblurred + click-through, whatever utility variant is used. */
+  [class*="inset-0"][class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: transparent !important;
+    pointer-events: none !important;
+  }
 
-  // Unblur every locked card (screens grid, flow cells, previews)
-  unblurCards();
+  /* Pseudo-element veils (after:backdrop-blur-*) */
+  [class*="after:backdrop-blur"]::after {
+    content: none !important;
+  }
+
+  /* Sticky "Get Pro" promo banner */
+  aside.sticky.z-10.my-32 {
+    display: none !important;
+  }
+`;
+
+function injectStyle() {
+  if (!document.head || document.getElementById(STYLE_ID)) return;
+  const style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.textContent = CSS;
+  document.head.appendChild(style);
+  console.log("[unblur-mobbin] veil CSS injected");
 }
 
-function removePromoBanners() {
-  // Remove sticky "Get Pro" promotional banners
-  const promoBanners = document.querySelectorAll("aside.sticky.z-10.my-32");
-  promoBanners.forEach((banner) => {
-    banner.remove();
-  });
-}
+injectStyle();
+document.addEventListener("DOMContentLoaded", injectStyle);
 
-function unblurCards() {
-  // The lock veil is the overlay with backdrop-blur-[10px]; it covers the
-  // whole card, and its pointer-events-none container swallows clicks.
-  const overlays = document.querySelectorAll(BLUR_OVERLAY_SELECTOR);
-  overlays.forEach((overlay) => {
-    const card = overlay.closest(".pointer-events-none");
-    if (card) {
-      card.classList.remove("pointer-events-none");
-    }
-    overlay.remove();
-  });
-}
-
-// Add event listeners for scroll and DOMContentLoaded
-window.addEventListener("scroll", handleModifications);
-document.addEventListener("DOMContentLoaded", handleModifications);
-
-// Also run on mutation to catch dynamically loaded content (the grid is virtualized)
-const observer = new MutationObserver(() => {
-  handleModifications();
-});
-
-observer.observe(document.body, {
+// SPA navigation can replace <head> children; re-inject if our style vanished.
+new MutationObserver(injectStyle).observe(document.documentElement, {
   childList: true,
   subtree: true,
-});
-
-// Optionally, remove the event listener when the page is unloaded
-window.addEventListener("unload", () => {
-  window.removeEventListener("scroll", handleModifications);
-  observer.disconnect();
 });
