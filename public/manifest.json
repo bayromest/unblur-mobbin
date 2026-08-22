@@ -1,32 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Unblur Mobbin",
-  "version": "1.0.2",
-  "description": "Unblur Mobbin",
-  "permissions": [
-    "activeTab",
-    "scripting"
-  ],
-  "host_permissions": [
-    "https://mobbin.com/*"
-  ],
+  "version": "1.0.3",
+  "description": "Unblur Mobbin free-tier screen veils",
   "content_scripts": [
     {
-      "matches": [
-        "https://mobbin.com/*"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "run_at": "document_end"
+      "matches": ["https://mobbin.com/*"],
+      "css": ["content.css"]
     }
   ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  },
-  "action": {
-    "default_popup": "index.html"
   }
 }

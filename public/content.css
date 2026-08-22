@@ -1,0 +1,34 @@
+/* Mobbin free-tier veil killer — injected by the browser via manifest
+   (content_scripts.css), applied before any page JS runs.
+   The lock is a full-card veil stacked over a sharp image:
+     <div class="absolute inset-0 bg-[hsl(var(--neutral-0)/40%)] backdrop-blur-[10px]" />
+   Image URLs are AES-encrypted Bytescale links (?enc=1...), so no resolution
+   upgrade is possible — this only lifts the veil to reveal the sharp 720px
+   watermarked image the page already loads. */
+
+/* Exact current lock veil: unblur, unwash, click-through */
+[class*="backdrop-blur-[10px]"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: transparent !important;
+  pointer-events: none !important;
+}
+
+/* Any other full-cover blur veil variant (backdrop-blur-md, -xl, ...):
+   neutralize visually but leave pointer events alone so legit overlays
+   (lightbox click-to-close) keep working */
+[class*="inset-0"][class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: transparent !important;
+}
+
+/* Pseudo-element veils (after:backdrop-blur-*) */
+[class*="after:backdrop-blur"]::after {
+  content: none !important;
+}
+
+/* Sticky "Get Pro" promo banner */
+aside.sticky.z-10.my-32 {
+  display: none !important;
+}
